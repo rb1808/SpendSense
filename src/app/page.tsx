@@ -1,6 +1,8 @@
+'use client';
 
-"use client";
-
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useUser } from '@/firebase';
 import { useFinanceStore } from "@/hooks/use-finance-store";
 import { Navbar } from "@/components/layout/Navbar";
 import { OverviewCards } from "@/components/finance/OverviewCards";
@@ -8,10 +10,13 @@ import { SpendingChart } from "@/components/finance/SpendingChart";
 import { ExpenseForm } from "@/components/finance/ExpenseForm";
 import { BudgetGoals } from "@/components/finance/BudgetGoals";
 import { ExpenseList } from "@/components/finance/ExpenseList";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Settings } from "@/components/finance/Settings";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Home() {
+  const { user, isUserLoading } = useUser();
+  const router = useRouter();
+
   const { 
     expenses, 
     budgetGoals, 
@@ -21,7 +26,13 @@ export default function Home() {
     isLoaded 
   } = useFinanceStore();
 
-  if (!isLoaded) {
+  useEffect(() => {
+    if (!isUserLoading && !user) {
+      router.push('/login');
+    }
+  }, [user, isUserLoading, router]);
+
+  if (isUserLoading || !isLoaded || !user) {
     return (
       <div className="min-h-screen bg-background">
         <Navbar />
@@ -47,9 +58,11 @@ export default function Home() {
       
       <main className="container mx-auto p-4 space-y-8 mt-4">
         <section>
-          <h1 className="text-2xl font-bold mb-6 flex items-center gap-2">
-            Financial Dashboard
-          </h1>
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+            <h1 className="text-2xl font-bold flex items-center gap-2">
+              Financial Dashboard
+            </h1>
+          </div>
           <OverviewCards expenses={expenses} dailyLimit={dailyLimit} />
         </section>
 
@@ -65,6 +78,10 @@ export default function Home() {
 
         <section id="expenses">
           <ExpenseList expenses={expenses} onDelete={deleteExpense} />
+        </section>
+
+        <section className="max-w-2xl mx-auto">
+          <Settings />
         </section>
       </main>
 
