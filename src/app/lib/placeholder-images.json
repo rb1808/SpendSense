@@ -1,0 +1,17 @@
+
+{
+  "placeholderImages": [
+    {
+      "id": "hero-finance",
+      "description": "Clean financial dashboard representation",
+      "imageUrl": "https://picsum.photos/seed/finance1/1200/600",
+      "imageHint": "finance dashboard"
+    },
+    {
+      "id": "avatar-user",
+      "description": "User profile avatar",
+      "imageUrl": "https://picsum.photos/seed/user123/100/100",
+      "imageHint": "user avatar"
+    }
+  ]
+}
