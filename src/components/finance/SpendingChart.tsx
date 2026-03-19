@@ -1,4 +1,3 @@
-
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -36,7 +35,7 @@ export function SpendingChart({ expenses }: SpendingChartProps) {
     });
 
     return Object.entries(map).map(([date, amount]) => ({
-      date: date.split('-').slice(1).join('/'),
+      date: date.split('-').slice(2).join('/'),
       amount
     }));
   }, [expenses]);
@@ -53,13 +52,13 @@ export function SpendingChart({ expenses }: SpendingChartProps) {
   };
 
   return (
-    <div className="grid gap-6 md:grid-cols-2">
+    <div className="grid gap-6 grid-cols-1 md:grid-cols-2">
       <Card className="shadow-md">
         <CardHeader>
-          <CardTitle>Spending by Category</CardTitle>
-          <CardDescription>Breakdown of your total expenses in Rupees</CardDescription>
+          <CardTitle className="text-lg">Categories</CardTitle>
+          <CardDescription>Spending distribution</CardDescription>
         </CardHeader>
-        <CardContent className="h-[300px]">
+        <CardContent className="h-[250px] sm:h-[300px]">
           <ChartContainer config={{}}>
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
@@ -67,11 +66,10 @@ export function SpendingChart({ expenses }: SpendingChartProps) {
                   data={categoryData}
                   cx="50%"
                   cy="50%"
-                  innerRadius={60}
-                  outerRadius={80}
+                  innerRadius={50}
+                  outerRadius={70}
                   paddingAngle={5}
                   dataKey="value"
-                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
                 >
                   {categoryData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -81,20 +79,28 @@ export function SpendingChart({ expenses }: SpendingChartProps) {
               </PieChart>
             </ResponsiveContainer>
           </ChartContainer>
+          <div className="flex flex-wrap justify-center gap-2 mt-2">
+             {categoryData.slice(0, 4).map((entry, index) => (
+               <div key={entry.name} className="flex items-center gap-1">
+                 <div className="w-2 h-2 rounded-full" style={{ backgroundColor: COLORS[index % COLORS.length] }} />
+                 <span className="text-[10px] text-muted-foreground">{entry.name}</span>
+               </div>
+             ))}
+          </div>
         </CardContent>
       </Card>
 
       <Card className="shadow-md">
         <CardHeader>
-          <CardTitle>Last 7 Days</CardTitle>
-          <CardDescription>Your daily spending trend in Rupees</CardDescription>
+          <CardTitle className="text-lg">Last 7 Days</CardTitle>
+          <CardDescription>Daily trend in ₹</CardDescription>
         </CardHeader>
-        <CardContent className="h-[300px]">
+        <CardContent className="h-[250px] sm:h-[300px]">
           <ChartContainer config={{ amount: { label: "Spent (₹)", color: "var(--chart-1)" } }}>
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={dailyData}>
-                <XAxis dataKey="date" />
-                <YAxis tickFormatter={(val) => `₹${val}`} />
+                <XAxis dataKey="date" fontSize={10} tickLine={false} axisLine={false} />
+                <YAxis hide />
                 <ChartTooltip content={<CustomTooltipContent />} />
                 <Bar dataKey="amount" fill="var(--primary)" radius={[4, 4, 0, 0]} />
               </BarChart>

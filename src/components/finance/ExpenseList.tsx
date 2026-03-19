@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState } from "react";
@@ -24,31 +23,31 @@ export function ExpenseList({ expenses, onDelete }: ExpenseListProps) {
   );
 
   return (
-    <Card className="shadow-md">
-      <CardHeader className="flex flex-col md:flex-row items-center justify-between gap-4">
-        <CardTitle className="text-xl">Recent Expenses</CardTitle>
+    <Card className="shadow-md overflow-hidden">
+      <CardHeader className="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between md:space-y-0">
+        <CardTitle className="text-xl">Transactions</CardTitle>
         <div className="flex w-full max-w-sm items-center space-x-2">
           <div className="relative w-full">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
               type="search"
-              placeholder="Search expenses..."
-              className="pl-8"
+              placeholder="Search..."
+              className="pl-8 h-9"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>
-          <Button variant="outline" size="icon">
+          <Button variant="outline" size="icon" className="h-9 w-9 shrink-0">
             <Filter className="h-4 w-4" />
           </Button>
         </div>
       </CardHeader>
-      <CardContent>
-        <div className="rounded-md border overflow-hidden">
+      <CardContent className="p-0 sm:p-6">
+        <div className="relative w-full overflow-x-auto border-t sm:border sm:rounded-md">
           <Table>
             <TableHeader className="bg-muted/50">
               <TableRow>
-                <TableHead>Date</TableHead>
+                <TableHead className="whitespace-nowrap">Date</TableHead>
                 <TableHead>Description</TableHead>
                 <TableHead>Category</TableHead>
                 <TableHead className="text-right">Amount (₹)</TableHead>
@@ -65,15 +64,19 @@ export function ExpenseList({ expenses, onDelete }: ExpenseListProps) {
               ) : (
                 filteredExpenses.map((expense) => (
                   <TableRow key={expense.id} className="hover:bg-muted/30 transition-colors">
-                    <TableCell className="font-medium">{expense.date}</TableCell>
-                    <TableCell>{expense.description}</TableCell>
+                    <TableCell className="font-medium whitespace-nowrap">
+                      {expense.date.split('-').reverse().join('/')}
+                    </TableCell>
+                    <TableCell className="max-w-[150px] truncate">{expense.description}</TableCell>
                     <TableCell>
-                      <Badge variant="secondary" className="font-normal">
+                      <Badge variant="secondary" className="font-normal text-[10px] sm:text-xs">
                         {expense.category}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-right font-semibold">₹{expense.amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</TableCell>
-                    <TableCell>
+                    <TableCell className="text-right font-semibold whitespace-nowrap">
+                      ₹{expense.amount.toLocaleString('en-IN', { minimumFractionDigits: 0 })}
+                    </TableCell>
+                    <TableCell className="text-right">
                       <Button 
                         variant="ghost" 
                         size="icon" 

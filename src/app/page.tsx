@@ -27,7 +27,6 @@ export default function Home() {
   } = useFinanceStore();
 
   useEffect(() => {
-    // Mandatory login for Trial App experience
     if (!isUserLoading && !user) {
       router.push('/login');
     }
@@ -38,15 +37,15 @@ export default function Home() {
       <div className="min-h-screen bg-background">
         <Navbar />
         <main className="container mx-auto p-4 space-y-8 animate-pulse">
-          <div className="grid gap-4 md:grid-cols-4">
+          <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-4">
             <Skeleton className="h-24" />
             <Skeleton className="h-24" />
             <Skeleton className="h-24" />
             <Skeleton className="h-24" />
           </div>
-          <div className="grid gap-4 md:grid-cols-2">
-            <Skeleton className="h-[400px]" />
-            <Skeleton className="h-[400px]" />
+          <div className="grid gap-4 grid-cols-1 lg:grid-cols-2">
+            <Skeleton className="h-[300px]" />
+            <Skeleton className="h-[300px]" />
           </div>
         </main>
       </div>
@@ -57,43 +56,34 @@ export default function Home() {
     <div className="min-h-screen bg-background pb-12">
       <Navbar />
       
-      <main className="container mx-auto p-4 space-y-8 mt-4">
+      <main className="container mx-auto px-4 sm:px-6 lg:px-8 space-y-8 mt-4">
+        <header className="space-y-2">
+          <h1 className="text-2xl font-bold tracking-tight">Financial Dashboard</h1>
+          <p className="text-sm text-muted-foreground">Welcome back, {user.displayName?.split(' ')[0]}</p>
+        </header>
+
         <section>
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-            <h1 className="text-2xl font-bold flex items-center gap-2">
-              Financial Dashboard
-            </h1>
-          </div>
           <OverviewCards expenses={expenses} dailyLimit={dailyLimit} />
         </section>
 
-        {/* Primary Analysis Section */}
-        <section className="grid gap-6 lg:grid-cols-3">
-          <div className="lg:col-span-2">
+        <section className="grid gap-6 grid-cols-1 lg:grid-cols-12 items-start">
+          <div className="lg:col-span-8 space-y-6">
             <SpendingChart expenses={expenses} />
+            <div id="expenses">
+              <ExpenseList expenses={expenses} onDelete={deleteExpense} />
+            </div>
           </div>
-          <div>
+          
+          <div className="lg:col-span-4 space-y-6">
             <ExpenseForm onAdd={addExpense} historicalExpenses={expenses} />
-          </div>
-        </section>
-
-        {/* Secondary Data Section */}
-        <section className="grid gap-6 lg:grid-cols-3">
-          <div className="lg:col-span-2" id="expenses">
-            <ExpenseList expenses={expenses} onDelete={deleteExpense} />
-          </div>
-          <div>
             <BudgetGoals expenses={expenses} goals={budgetGoals} />
+            <Settings />
           </div>
-        </section>
-
-        <section className="max-w-2xl mx-auto">
-          <Settings />
         </section>
       </main>
 
       <footer className="container mx-auto px-4 mt-12 pt-8 border-t text-center text-muted-foreground text-sm">
-        <p>&copy; {new Date().getFullYear()} SpendSense. Smart financial control at your fingertips.</p>
+        <p>&copy; {new Date().getFullYear()} SpendSense. Built for the modern saver.</p>
       </footer>
     </div>
   );
