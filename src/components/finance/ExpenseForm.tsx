@@ -19,7 +19,7 @@ interface ExpenseFormProps {
   historicalExpenses: Expense[];
 }
 
-export function ExpenseForm({ onAdd }: ExpenseFormProps) {
+export function ExpenseForm({ onAdd, historicalExpenses }: ExpenseFormProps) {
   const [description, setDescription] = useState("");
   const [amount, setAmount] = useState("");
   const [category, setCategory] = useState("");
