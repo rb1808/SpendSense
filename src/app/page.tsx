@@ -27,12 +27,13 @@ export default function Home() {
   } = useFinanceStore();
 
   useEffect(() => {
-    if (!isUserLoading && !user) {
-      router.push('/login');
-    }
+    // Note: Reverted mandatory login per user request
+    // if (!isUserLoading && !user) {
+    //   router.push('/login');
+    // }
   }, [user, isUserLoading, router]);
 
-  if (isUserLoading || !isLoaded || !user) {
+  if (!isLoaded) {
     return (
       <div className="min-h-screen bg-background">
         <Navbar />
@@ -66,18 +67,24 @@ export default function Home() {
           <OverviewCards expenses={expenses} dailyLimit={dailyLimit} />
         </section>
 
+        {/* Primary Analysis Section */}
         <section className="grid gap-6 lg:grid-cols-3">
           <div className="lg:col-span-2">
             <SpendingChart expenses={expenses} />
           </div>
-          <div className="space-y-6">
+          <div>
             <ExpenseForm onAdd={addExpense} historicalExpenses={expenses} />
-            <BudgetGoals expenses={expenses} goals={budgetGoals} />
           </div>
         </section>
 
-        <section id="expenses">
-          <ExpenseList expenses={expenses} onDelete={deleteExpense} />
+        {/* Secondary Data Section */}
+        <section className="grid gap-6 lg:grid-cols-3">
+          <div className="lg:col-span-2" id="expenses">
+            <ExpenseList expenses={expenses} onDelete={deleteExpense} />
+          </div>
+          <div>
+            <BudgetGoals expenses={expenses} goals={budgetGoals} />
+          </div>
         </section>
 
         <section className="max-w-2xl mx-auto">
