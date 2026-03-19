@@ -2,9 +2,7 @@
 
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Wallet, Settings, LayoutDashboard, History, Menu, Beaker, LogOut, User } from "lucide-react";
-import { useFinanceStore } from "@/hooks/use-finance-store";
-import { toast } from "@/hooks/use-toast";
+import { Wallet, Settings, LayoutDashboard, History, Menu, LogOut, User } from "lucide-react";
 import { useAuth, useUser } from "@/firebase";
 import { initiateSignOut } from "@/firebase/non-blocking-login";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -18,17 +16,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 export function Navbar() {
-  const { seedTestData } = useFinanceStore();
   const { user } = useUser();
   const auth = useAuth();
-
-  const handleSeedData = () => {
-    seedTestData();
-    toast({
-      title: "Reviewer Mode Active",
-      description: "Test data (Rupees) has been successfully seeded.",
-    });
-  };
 
   const handleLogout = () => {
     initiateSignOut(auth);
@@ -56,15 +45,6 @@ export function Navbar() {
           </Link>
           
           <div className="flex items-center gap-2 ml-4 pl-4 border-l">
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={handleSeedData}
-              className="border-accent text-accent hover:bg-accent/10"
-            >
-              <Beaker className="h-4 w-4 mr-2" /> Seed Test Data
-            </Button>
-            
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>

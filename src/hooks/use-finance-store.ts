@@ -8,8 +8,7 @@ import {
   useDoc, 
   useMemoFirebase,
   addDocumentNonBlocking,
-  deleteDocumentNonBlocking,
-  setDocumentNonBlocking
+  deleteDocumentNonBlocking
 } from '@/firebase';
 import { collection, doc, serverTimestamp } from 'firebase/firestore';
 import { Expense, BudgetGoal, DailyLimit } from '@/lib/types';
@@ -68,7 +67,6 @@ export function useFinanceStore() {
 
   const updateBudgetGoal = (category: string, limit: number) => {
     if (!budgetsRef || !user) return;
-    // For simplicity in the trial, we'll use addDoc, but a more robust app would check for existing
     addDocumentNonBlocking(budgetsRef, {
       category,
       budgetAmount: limit,
@@ -79,30 +77,6 @@ export function useFinanceStore() {
     });
   };
 
-  const seedTestData = async () => {
-    if (!user || !db || !expensesRef || !budgetsRef || !profileRef) return;
-
-    const testExpenses = [
-      { description: 'Monthly House Rent', amount: 25000, category: 'Rent', date: new Date().toISOString().split('T')[0] },
-      { description: 'BigBasket Groceries', amount: 4500.50, category: 'Groceries', date: new Date().toISOString().split('T')[0] },
-      { description: 'Petrol - Bharat Petroleum', amount: 3200, category: 'Transportation', date: new Date().toISOString().split('T')[0] },
-    ];
-
-    testExpenses.forEach(exp => addExpense(exp));
-
-    setDocumentNonBlocking(profileRef, {
-      id: user.uid,
-      email: user.email,
-      displayName: user.displayName,
-      currency: "INR",
-      dailySpendingLimit: 2000,
-      receiveDailyAlerts: true,
-      receiveMonthlyReports: true,
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp(),
-    }, { merge: true });
-  };
-
   return {
     expenses,
     budgetGoals,
@@ -110,7 +84,6 @@ export function useFinanceStore() {
     addExpense,
     deleteExpense,
     updateBudgetGoal,
-    seedTestData,
     isLoaded
   };
 }
