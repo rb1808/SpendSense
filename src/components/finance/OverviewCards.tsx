@@ -38,50 +38,52 @@ export function OverviewCards({ expenses, dailyLimit }: OverviewCardsProps) {
 
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-      <Card className="border-l-4 border-l-primary">
+      <Card className="border-l-4 border-l-primary shadow-sm hover:shadow-md transition-shadow">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Monthly Spending</CardTitle>
           <Wallet className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">${stats.monthlyTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
-          <p className="text-xs text-muted-foreground">Total for current month</p>
+          <div className="text-2xl font-bold text-primary">₹{stats.monthlyTotal.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+          <p className="text-xs text-muted-foreground mt-1">Total for current month</p>
         </CardContent>
       </Card>
 
-      <Card className={`border-l-4 ${stats.overDaily ? 'border-l-destructive' : 'border-l-accent'}`}>
+      <Card className={`border-l-4 shadow-sm hover:shadow-md transition-shadow ${stats.overDaily ? 'border-l-destructive' : 'border-l-accent'}`}>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Daily Spending</CardTitle>
           <Calendar className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">${stats.todayTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
-          <p className={`text-xs ${stats.overDaily ? 'text-destructive font-semibold' : 'text-muted-foreground'}`}>
-            {dailyLimit.enabled ? `Limit: $${dailyLimit.amount}` : 'No limit set'}
+          <div className="text-2xl font-bold">₹{stats.todayTotal.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+          <p className={`text-xs mt-1 ${stats.overDaily ? 'text-destructive font-semibold' : 'text-muted-foreground'}`}>
+            {dailyLimit.enabled ? `Limit: ₹${dailyLimit.amount}` : 'No limit set'}
             {stats.overDaily && ' • Limit exceeded!'}
           </p>
         </CardContent>
       </Card>
 
-      <Card className="border-l-4 border-l-primary">
+      <Card className="border-l-4 border-l-primary shadow-sm hover:shadow-md transition-shadow">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-sm font-medium">Total Transactions</CardTitle>
           <TrendingUp className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
           <div className="text-2xl font-bold">{stats.expenseCount}</div>
-          <p className="text-xs text-muted-foreground">All recorded entries</p>
+          <p className="text-xs text-muted-foreground mt-1">All recorded entries</p>
         </CardContent>
       </Card>
 
-      <Card className="border-l-4 border-l-primary">
+      <Card className="border-l-4 border-l-primary shadow-sm hover:shadow-md transition-shadow">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Financial Status</CardTitle>
+          <CardTitle className="text-sm font-medium">Financial Health</CardTitle>
           <AlertCircle className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold text-accent">Healthy</div>
-          <p className="text-xs text-muted-foreground">Based on current goals</p>
+          <div className={`text-2xl font-bold ${stats.overDaily ? 'text-destructive' : 'text-accent'}`}>
+            {stats.overDaily ? 'Watch Out' : 'Healthy'}
+          </div>
+          <p className="text-xs text-muted-foreground mt-1">Based on daily limits</p>
         </CardContent>
       </Card>
     </div>

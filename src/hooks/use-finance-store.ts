@@ -4,27 +4,28 @@
 import { useState, useEffect } from 'react';
 import { Expense, BudgetGoal, DailyLimit, AppState } from '@/lib/types';
 
-const STORAGE_KEY = 'spendsense_data';
+const STORAGE_KEY = 'spendsense_data_v2';
 
-const DEFAULT_STATE: AppState = {
+const REVIEWER_DATA: AppState = {
   expenses: [
-    { id: '1', description: 'Monthly Rent', amount: 1200, category: 'Rent', date: '2024-03-01' },
-    { id: '2', description: 'Whole Foods Market', amount: 85.50, category: 'Groceries', date: '2024-03-02' },
-    { id: '3', description: 'Shell Petrol', amount: 45.00, category: 'Transportation', date: '2024-03-03' },
-    { id: '4', description: 'Netflix Subscription', amount: 15.99, category: 'Entertainment', date: '2024-03-04' },
-    { id: '5', description: 'Starbucks Coffee', amount: 6.50, category: 'Dining Out', date: '2024-03-05' },
+    { id: '1', description: 'Monthly House Rent', amount: 25000, category: 'Rent', date: new Date().toISOString().split('T')[0] },
+    { id: '2', description: 'BigBasket Groceries', amount: 4500.50, category: 'Groceries', date: new Date().toISOString().split('T')[0] },
+    { id: '3', description: 'Petrol - Bharat Petroleum', amount: 3200, category: 'Transportation', date: new Date().toISOString().split('T')[0] },
+    { id: '4', description: 'Zomato Dinner', amount: 1250.75, category: 'Dining Out', date: new Date().toISOString().split('T')[0] },
+    { id: '5', description: 'Electricity Bill', amount: 2800, category: 'Utilities', date: new Date().toISOString().split('T')[0] },
+    { id: '6', description: 'Netflix Premium', amount: 649, category: 'Entertainment', date: new Date().toISOString().split('T')[0] },
   ],
   budgetGoals: [
-    { category: 'Groceries', limit: 400 },
-    { category: 'Dining Out', limit: 200 },
-    { category: 'Transportation', limit: 150 },
-    { category: 'Entertainment', limit: 100 },
+    { category: 'Groceries', limit: 15000 },
+    { category: 'Dining Out', limit: 8000 },
+    { category: 'Transportation', limit: 10000 },
+    { category: 'Entertainment', limit: 5000 },
   ],
-  dailyLimit: { amount: 50, enabled: true },
+  dailyLimit: { amount: 2000, enabled: true },
 };
 
 export function useFinanceStore() {
-  const [state, setState] = useState<AppState>(DEFAULT_STATE);
+  const [state, setState] = useState<AppState>(REVIEWER_DATA);
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
@@ -74,12 +75,18 @@ export function useFinanceStore() {
     setState(prev => ({ ...prev, dailyLimit: limit }));
   };
 
+  const seedTestData = () => {
+    setState(REVIEWER_DATA);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(REVIEWER_DATA));
+  };
+
   return {
     ...state,
     addExpense,
     deleteExpense,
     updateBudgetGoal,
     updateDailyLimit,
+    seedTestData,
     isLoaded
   };
 }

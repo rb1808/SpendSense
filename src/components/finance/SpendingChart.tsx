@@ -43,12 +43,21 @@ export function SpendingChart({ expenses }: SpendingChartProps) {
 
   const COLORS = ['var(--chart-1)', 'var(--chart-2)', 'var(--chart-3)', 'var(--chart-4)', 'var(--chart-5)', '#1F8289', '#33BF72', '#145A5F', '#279055'];
 
+  const CustomTooltipContent = (props: any) => {
+    return (
+      <ChartTooltipContent 
+        {...props} 
+        formatter={(value) => `₹${Number(value).toLocaleString('en-IN')}`}
+      />
+    );
+  };
+
   return (
-    <div className="grid gap-4 md:grid-cols-2">
-      <Card>
+    <div className="grid gap-6 md:grid-cols-2">
+      <Card className="shadow-md">
         <CardHeader>
           <CardTitle>Spending by Category</CardTitle>
-          <CardDescription>Breakdown of your total expenses</CardDescription>
+          <CardDescription>Breakdown of your total expenses in Rupees</CardDescription>
         </CardHeader>
         <CardContent className="h-[300px]">
           <ChartContainer config={{}}>
@@ -68,25 +77,25 @@ export function SpendingChart({ expenses }: SpendingChartProps) {
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                   ))}
                 </Pie>
-                <ChartTooltip content={<ChartTooltipContent />} />
+                <ChartTooltip content={<CustomTooltipContent />} />
               </PieChart>
             </ResponsiveContainer>
           </ChartContainer>
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="shadow-md">
         <CardHeader>
           <CardTitle>Last 7 Days</CardTitle>
-          <CardDescription>Your daily spending trend</CardDescription>
+          <CardDescription>Your daily spending trend in Rupees</CardDescription>
         </CardHeader>
         <CardContent className="h-[300px]">
-          <ChartContainer config={{ amount: { label: "Spent ($)", color: "var(--chart-1)" } }}>
+          <ChartContainer config={{ amount: { label: "Spent (₹)", color: "var(--chart-1)" } }}>
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={dailyData}>
                 <XAxis dataKey="date" />
-                <YAxis />
-                <ChartTooltip content={<ChartTooltipContent />} />
+                <YAxis tickFormatter={(val) => `₹${val}`} />
+                <ChartTooltip content={<CustomTooltipContent />} />
                 <Bar dataKey="amount" fill="var(--primary)" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>

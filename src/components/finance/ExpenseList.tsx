@@ -24,9 +24,9 @@ export function ExpenseList({ expenses, onDelete }: ExpenseListProps) {
   );
 
   return (
-    <Card>
-      <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle>Recent Expenses</CardTitle>
+    <Card className="shadow-md">
+      <CardHeader className="flex flex-col md:flex-row items-center justify-between gap-4">
+        <CardTitle className="text-xl">Recent Expenses</CardTitle>
         <div className="flex w-full max-w-sm items-center space-x-2">
           <div className="relative w-full">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
@@ -44,14 +44,14 @@ export function ExpenseList({ expenses, onDelete }: ExpenseListProps) {
         </div>
       </CardHeader>
       <CardContent>
-        <div className="rounded-md border">
+        <div className="rounded-md border overflow-hidden">
           <Table>
-            <TableHeader>
+            <TableHeader className="bg-muted/50">
               <TableRow>
                 <TableHead>Date</TableHead>
                 <TableHead>Description</TableHead>
                 <TableHead>Category</TableHead>
-                <TableHead className="text-right">Amount</TableHead>
+                <TableHead className="text-right">Amount (₹)</TableHead>
                 <TableHead className="w-[50px]"></TableHead>
               </TableRow>
             </TableHeader>
@@ -64,7 +64,7 @@ export function ExpenseList({ expenses, onDelete }: ExpenseListProps) {
                 </TableRow>
               ) : (
                 filteredExpenses.map((expense) => (
-                  <TableRow key={expense.id}>
+                  <TableRow key={expense.id} className="hover:bg-muted/30 transition-colors">
                     <TableCell className="font-medium">{expense.date}</TableCell>
                     <TableCell>{expense.description}</TableCell>
                     <TableCell>
@@ -72,13 +72,13 @@ export function ExpenseList({ expenses, onDelete }: ExpenseListProps) {
                         {expense.category}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-right">${expense.amount.toFixed(2)}</TableCell>
+                    <TableCell className="text-right font-semibold">₹{expense.amount.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</TableCell>
                     <TableCell>
                       <Button 
                         variant="ghost" 
                         size="icon" 
                         onClick={() => onDelete(expense.id)}
-                        className="text-muted-foreground hover:text-destructive"
+                        className="text-muted-foreground hover:text-destructive h-8 w-8"
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>

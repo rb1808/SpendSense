@@ -6,8 +6,7 @@ import { Progress } from "@/components/ui/progress";
 import { Expense, BudgetGoal } from "@/lib/types";
 import { useMemo } from "react";
 import { format } from "date-fns";
-import { Target, PencilLine } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Target } from "lucide-react";
 
 interface BudgetGoalsProps {
   expenses: Expense[];
@@ -36,10 +35,10 @@ export function BudgetGoals({ expenses, goals }: BudgetGoalsProps) {
   }, [expenses, goals, currentMonth]);
 
   return (
-    <Card className="h-full">
+    <Card className="h-full shadow-md">
       <CardHeader className="flex flex-row items-center justify-between space-y-0">
         <div>
-          <CardTitle>Budget Goals</CardTitle>
+          <CardTitle className="text-xl">Budget Goals</CardTitle>
           <CardDescription>Monthly limits by category</CardDescription>
         </div>
         <Target className="h-4 w-4 text-muted-foreground" />
@@ -55,13 +54,12 @@ export function BudgetGoals({ expenses, goals }: BudgetGoalsProps) {
               <div className="flex items-center justify-between text-sm">
                 <span className="font-medium">{budget.category}</span>
                 <span className={budget.isOver ? 'text-destructive font-bold' : 'text-muted-foreground'}>
-                  ${budget.spent.toFixed(2)} / ${budget.limit}
+                  ₹{budget.spent.toLocaleString('en-IN')} / ₹{budget.limit.toLocaleString('en-IN')}
                 </span>
               </div>
               <Progress 
                 value={budget.percentage} 
                 className={`h-2 ${budget.isOver ? 'bg-destructive/20' : ''}`}
-                // Custom primary indicator color would be nice here but standard shadcn Progress uses primary
               />
             </div>
           ))

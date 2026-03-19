@@ -65,9 +65,9 @@ export function ExpenseForm({ onAdd, historicalExpenses }: ExpenseFormProps) {
   };
 
   return (
-    <Card className="h-full">
+    <Card className="h-full shadow-md">
       <CardHeader>
-        <CardTitle>Add Expense</CardTitle>
+        <CardTitle className="text-xl">Add Expense</CardTitle>
         <CardDescription>Record a new transaction manually or use AI suggestions</CardDescription>
       </CardHeader>
       <CardContent>
@@ -81,6 +81,7 @@ export function ExpenseForm({ onAdd, historicalExpenses }: ExpenseFormProps) {
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 required
+                className="flex-1"
               />
               <Button 
                 type="button" 
@@ -96,7 +97,7 @@ export function ExpenseForm({ onAdd, historicalExpenses }: ExpenseFormProps) {
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="amount">Amount ($)</Label>
+              <Label htmlFor="amount">Amount (₹)</Label>
               <Input 
                 id="amount" 
                 type="number" 
@@ -131,7 +132,7 @@ export function ExpenseForm({ onAdd, historicalExpenses }: ExpenseFormProps) {
               </SelectContent>
             </Select>
           </div>
-          <Button type="submit" className="w-full">
+          <Button type="submit" className="w-full mt-2">
             <Plus className="mr-2 h-4 w-4" /> Add Expense
           </Button>
         </form>
