@@ -1,0 +1,310 @@
+{
+  "entities": {
+    "UserProfile": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "UserProfile",
+      "type": "object",
+      "description": "Represents a user's profile, settings, and preferences within the SpendSense application. This entity stores information necessary for personalized experience and notification delivery, assuming authentication is handled by an external system.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the UserProfile entity. This typically comes from the external authentication system."
+        },
+        "email": {
+          "type": "string",
+          "description": "The user's email address, used for sending alerts and monthly reports. (Relationship: UserProfile 1:1 ExternalAuth)",
+          "format": "email"
+        },
+        "displayName": {
+          "type": "string",
+          "description": "The user's preferred display name."
+        },
+        "currency": {
+          "type": "string",
+          "description": "The ISO 4217 currency code preferred by the user for financial tracking, e.g., 'USD', 'EUR'."
+        },
+        "dailySpendingLimit": {
+          "type": "number",
+          "description": "The maximum amount a user wishes to spend per day, for alert generation."
+        },
+        "receiveDailyAlerts": {
+          "type": "boolean",
+          "description": "Indicates whether the user wants to receive daily spending limit alerts via email."
+        },
+        "receiveMonthlyReports": {
+          "type": "boolean",
+          "description": "Indicates whether the user wants to receive monthly spending reports via email."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp when the user profile was created.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp when the user profile was last updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "email",
+        "displayName",
+        "currency",
+        "dailySpendingLimit",
+        "receiveDailyAlerts",
+        "receiveMonthlyReports",
+        "createdAt"
+      ]
+    },
+    "Category": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Category",
+      "type": "object",
+      "description": "Defines a classification for expenses or income. Categories can be system-provided or custom-created by users.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Category entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to the UserProfile who created this custom category. Null for system-provided default categories. (Relationship: UserProfile 1:N Category)"
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the category, e.g., 'Groceries', 'Rent', 'Salary'."
+        },
+        "description": {
+          "type": "string",
+          "description": "A brief description of what this category represents."
+        },
+        "type": {
+          "type": "string",
+          "description": "The type of financial flow this category represents, e.g., 'expense', 'income'."
+        },
+        "icon": {
+          "type": "string",
+          "description": "A string representing an icon associated with the category for UI display (e.g., an icon name or SVG path)."
+        },
+        "color": {
+          "type": "string",
+          "description": "A hexadecimal color code associated with the category for UI display, e.g., '#FF0000'."
+        },
+        "isDefault": {
+          "type": "boolean",
+          "description": "Flag indicating if this is a system-provided default category (true) or a user-defined custom category (false)."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp when the category was created.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp when the category was last updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "description",
+        "type",
+        "icon",
+        "color",
+        "isDefault",
+        "createdAt"
+      ]
+    },
+    "Expense": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Expense",
+      "type": "object",
+      "description": "Records individual financial transactions, specifically outgoing expenditures. This is central to tracking and visualization features.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Expense entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to the UserProfile who recorded this expense. (Relationship: UserProfile 1:N Expense)"
+        },
+        "categoryId": {
+          "type": "string",
+          "description": "Reference to the Category this expense belongs to. (Relationship: Category 1:N Expense)"
+        },
+        "amount": {
+          "type": "number",
+          "description": "The monetary value of the expense."
+        },
+        "description": {
+          "type": "string",
+          "description": "A brief description or merchant name for the expense."
+        },
+        "transactionDate": {
+          "type": "string",
+          "description": "The date and time when the expense occurred.",
+          "format": "date-time"
+        },
+        "note": {
+          "type": "string",
+          "description": "Optional additional details or notes about the expense."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp when the expense record was created.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp when the expense record was last updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "categoryId",
+        "amount",
+        "description",
+        "transactionDate",
+        "createdAt"
+      ]
+    },
+    "Budget": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Budget",
+      "type": "object",
+      "description": "Represents a user's monthly budget goal for a specific category, enabling tracking of spending against targets.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Budget entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to the UserProfile who set this budget. (Relationship: UserProfile 1:N Budget)"
+        },
+        "categoryId": {
+          "type": "string",
+          "description": "Reference to the Category this budget applies to. (Relationship: Category 1:N Budget)"
+        },
+        "period": {
+          "type": "string",
+          "description": "The month and year for which the budget is set, e.g., '2023-11' for November 2023."
+        },
+        "budgetAmount": {
+          "type": "number",
+          "description": "The target monetary amount for the budget in this category for the specified period."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp when the budget record was created.",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Timestamp when the budget record was last updated.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "categoryId",
+        "period",
+        "budgetAmount",
+        "createdAt"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/users/{userId}",
+        "definition": {
+          "entityName": "UserProfile",
+          "schema": {
+            "$ref": "#/backend/entities/UserProfile"
+          },
+          "description": "Stores individual user profiles. Each document ID is the user's unique authentication ID (`userId`). This path ensures explicit ownership and direct access for the authenticated user to their profile settings.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique ID of the user, matching `request.auth.uid`."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/categories/{categoryId}",
+        "definition": {
+          "entityName": "Category",
+          "schema": {
+            "$ref": "#/backend/entities/Category"
+          },
+          "description": "User-specific categories for expenses and income. Includes denormalized 'userId' for authorization independence. Default categories (isDefault: true) are also stored here, specifically for the user, allowing for personal customization or referencing system-wide defaults uniquely for each user.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique ID of the user, identifying the owner of the categories."
+            },
+            {
+              "name": "categoryId",
+              "description": "The unique ID of the specific category."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/expenses/{expenseId}",
+        "definition": {
+          "entityName": "Expense",
+          "schema": {
+            "$ref": "#/backend/entities/Expense"
+          },
+          "description": "Records individual expenses made by a user. Includes denormalized 'userId' for authorization independence, ensuring only the owning user can access their expenses.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique ID of the user, identifying the owner of the expense."
+            },
+            {
+              "name": "expenseId",
+              "description": "The unique ID of the specific expense record."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/budgets/{budgetId}",
+        "definition": {
+          "entityName": "Budget",
+          "schema": {
+            "$ref": "#/backend/entities/Budget"
+          },
+          "description": "User-defined budget goals for specific categories and periods. Includes denormalized 'userId' for authorization independence, ensuring only the owning user can access their budgets.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique ID of the user, identifying the owner of the budget."
+            },
+            {
+              "name": "budgetId",
+              "description": "The unique ID of the specific budget record."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The recommended Firestore structure for SpendSense prioritizes strong user data isolation, clear ownership, and simplified security rules by strictly adhering to path-based authorization and denormalization. All user-specific data is nested under a top-level `users` collection, with each user having a dedicated document (`/users/{userId}`) and subcollections for their associated entities.\n\n**Authorization Independence:** This is achieved by embedding the `userId` directly into the path for all user-owned data (e.g., `/users/{userId}/categories/{categoryId}`). This ensures that `request.auth.uid` can be directly compared against the `{userId}` wildcard in the path, making the authorization context immediately available without requiring any `get()` operations on parent documents. For additional robustness and clarity, the `userId` field is also included within the `Category`, `Expense`, and `Budget` documents, creating a redundant ownership check that simplifies rule writing and improves data integrity. The `UserProfile` document itself is keyed by the user's UID (`/users/{userId}`), making its ownership explicit and atomic.\n\n**Querying for Authorization Posture (QAPs):** The structural segregation mandate is fully applied. Each collection (`categories`, `expenses`, `budgets`) under a user's path (`/users/{userId}/...`) contains documents with a homogeneous security posture: they are all owned by and private to that specific user. This enables secure and efficient `list` operations. Firestore security rules can simply verify that `request.auth.uid == userId` (where `userId` is the wildcard in the path). This guarantees that any `list` query from a client can only ever retrieve data belonging to the authenticated user, thus ensuring that rules are not used as filters and preventing accidental data exposure. For example, a query to `/users/my_uid/expenses` will only return expenses belonging to 'my_uid', without the need for additional `where` clauses in the rules.\n\nThis design pattern makes the Firestore security rules straightforward, declarative, and easy to debug, as authorization logic is primarily derived from the data's location within the hierarchy."
+  }
+}
