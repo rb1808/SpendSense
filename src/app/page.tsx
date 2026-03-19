@@ -27,13 +27,13 @@ export default function Home() {
   } = useFinanceStore();
 
   useEffect(() => {
-    // Note: Reverted mandatory login per user request
-    // if (!isUserLoading && !user) {
-    //   router.push('/login');
-    // }
+    // Mandatory login for Trial App experience
+    if (!isUserLoading && !user) {
+      router.push('/login');
+    }
   }, [user, isUserLoading, router]);
 
-  if (!isLoaded) {
+  if (isUserLoading || !user || !isLoaded) {
     return (
       <div className="min-h-screen bg-background">
         <Navbar />

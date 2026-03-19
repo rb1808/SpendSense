@@ -1,91 +1,115 @@
-
 "use client";
 
-import { useState, useEffect } from 'react';
-import { Expense, BudgetGoal, DailyLimit, AppState } from '@/lib/types';
-
-const STORAGE_KEY = 'spendsense_data_v2';
-
-const REVIEWER_DATA: AppState = {
-  expenses: [
-    { id: '1', description: 'Monthly House Rent', amount: 25000, category: 'Rent', date: new Date().toISOString().split('T')[0] },
-    { id: '2', description: 'BigBasket Groceries', amount: 4500.50, category: 'Groceries', date: new Date().toISOString().split('T')[0] },
-    { id: '3', description: 'Petrol - Bharat Petroleum', amount: 3200, category: 'Transportation', date: new Date().toISOString().split('T')[0] },
-    { id: '4', description: 'Zomato Dinner', amount: 1250.75, category: 'Dining Out', date: new Date().toISOString().split('T')[0] },
-    { id: '5', description: 'Electricity Bill', amount: 2800, category: 'Utilities', date: new Date().toISOString().split('T')[0] },
-    { id: '6', description: 'Netflix Premium', amount: 649, category: 'Entertainment', date: new Date().toISOString().split('T')[0] },
-  ],
-  budgetGoals: [
-    { category: 'Groceries', limit: 15000 },
-    { category: 'Dining Out', limit: 8000 },
-    { category: 'Transportation', limit: 10000 },
-    { category: 'Entertainment', limit: 5000 },
-  ],
-  dailyLimit: { amount: 2000, enabled: true },
-};
+import { useMemo } from 'react';
+import { 
+  useUser, 
+  useFirestore, 
+  useCollection, 
+  useDoc, 
+  useMemoFirebase,
+  addDocumentNonBlocking,
+  deleteDocumentNonBlocking,
+  setDocumentNonBlocking
+} from '@/firebase';
+import { collection, doc, serverTimestamp } from 'firebase/firestore';
+import { Expense, BudgetGoal, DailyLimit } from '@/lib/types';
 
 export function useFinanceStore() {
-  const [state, setState] = useState<AppState>(REVIEWER_DATA);
-  const [isLoaded, setIsLoaded] = useState(false);
+  const { user } = useUser();
+  const db = useFirestore();
 
-  useEffect(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      try {
-        setState(JSON.parse(saved));
-      } catch (e) {
-        console.error("Failed to parse saved state", e);
-      }
-    }
-    setIsLoaded(true);
-  }, []);
+  // Expenses Reference
+  const expensesRef = useMemoFirebase(() => {
+    if (!db || !user) return null;
+    return collection(db, "users", user.uid, "expenses");
+  }, [db, user]);
 
-  useEffect(() => {
-    if (isLoaded) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-    }
-  }, [state, isLoaded]);
+  // Budgets Reference
+  const budgetsRef = useMemoFirebase(() => {
+    if (!db || !user) return null;
+    return collection(db, "users", user.uid, "budgets");
+  }, [db, user]);
+
+  // Profile Reference (for daily limit)
+  const profileRef = useMemoFirebase(() => {
+    if (!db || !user) return null;
+    return doc(db, "users", user.uid);
+  }, [db, user]);
+
+  const { data: expensesData, isLoading: expensesLoading } = useCollection<Expense>(expensesRef);
+  const { data: budgetsData, isLoading: budgetsLoading } = useCollection<BudgetGoal>(budgetsRef);
+  const { data: profileData, isLoading: profileLoading } = useDoc(profileRef);
+
+  const expenses = useMemo(() => expensesData || [], [expensesData]);
+  const budgetGoals = useMemo(() => budgetsData || [], [budgetsData]);
+  
+  const dailyLimit: DailyLimit = useMemo(() => ({
+    amount: profileData?.dailySpendingLimit || 0,
+    enabled: !!profileData?.dailySpendingLimit && profileData?.dailySpendingLimit > 0
+  }), [profileData]);
+
+  const isLoaded = !expensesLoading && !budgetsLoading && !profileLoading;
 
   const addExpense = (expense: Omit<Expense, 'id'>) => {
-    const newExpense = { ...expense, id: Math.random().toString(36).substr(2, 9) };
-    setState(prev => ({ ...prev, expenses: [newExpense, ...prev.expenses] }));
-  };
-
-  const deleteExpense = (id: string) => {
-    setState(prev => ({ ...prev, expenses: prev.expenses.filter(e => e.id !== id) }));
-  };
-
-  const updateBudgetGoal = (category: string, limit: number) => {
-    setState(prev => {
-      const existing = prev.budgetGoals.find(b => b.category === category);
-      if (existing) {
-        return {
-          ...prev,
-          budgetGoals: prev.budgetGoals.map(b => b.category === category ? { ...b, limit } : b)
-        };
-      }
-      return {
-        ...prev,
-        budgetGoals: [...prev.budgetGoals, { category, limit }]
-      };
+    if (!expensesRef || !user) return;
+    addDocumentNonBlocking(expensesRef, {
+      ...expense,
+      userId: user.uid,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
     });
   };
 
-  const updateDailyLimit = (limit: DailyLimit) => {
-    setState(prev => ({ ...prev, dailyLimit: limit }));
+  const deleteExpense = (id: string) => {
+    if (!db || !user) return;
+    const docRef = doc(db, "users", user.uid, "expenses", id);
+    deleteDocumentNonBlocking(docRef);
   };
 
-  const seedTestData = () => {
-    setState(REVIEWER_DATA);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(REVIEWER_DATA));
+  const updateBudgetGoal = (category: string, limit: number) => {
+    if (!budgetsRef || !user) return;
+    // For simplicity in the trial, we'll use addDoc, but a more robust app would check for existing
+    addDocumentNonBlocking(budgetsRef, {
+      category,
+      budgetAmount: limit,
+      userId: user.uid,
+      period: new Date().toISOString().split('-').slice(0, 2).join('-'), // YYYY-MM
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    });
+  };
+
+  const seedTestData = async () => {
+    if (!user || !db || !expensesRef || !budgetsRef || !profileRef) return;
+
+    const testExpenses = [
+      { description: 'Monthly House Rent', amount: 25000, category: 'Rent', date: new Date().toISOString().split('T')[0] },
+      { description: 'BigBasket Groceries', amount: 4500.50, category: 'Groceries', date: new Date().toISOString().split('T')[0] },
+      { description: 'Petrol - Bharat Petroleum', amount: 3200, category: 'Transportation', date: new Date().toISOString().split('T')[0] },
+    ];
+
+    testExpenses.forEach(exp => addExpense(exp));
+
+    setDocumentNonBlocking(profileRef, {
+      id: user.uid,
+      email: user.email,
+      displayName: user.displayName,
+      currency: "INR",
+      dailySpendingLimit: 2000,
+      receiveDailyAlerts: true,
+      receiveMonthlyReports: true,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    }, { merge: true });
   };
 
   return {
-    ...state,
+    expenses,
+    budgetGoals,
+    dailyLimit,
     addExpense,
     deleteExpense,
     updateBudgetGoal,
-    updateDailyLimit,
     seedTestData,
     isLoaded
   };
