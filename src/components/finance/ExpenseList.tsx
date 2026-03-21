@@ -9,12 +9,13 @@ import { Expense } from "@/lib/types";
 import { Search, Trash2, Filter } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
+import { deleteExpenseAction } from "@/app/actions";
+
 interface ExpenseListProps {
   expenses: Expense[];
-  onDelete: (id: string) => void;
 }
 
-export function ExpenseList({ expenses, onDelete }: ExpenseListProps) {
+export function ExpenseList({ expenses }: ExpenseListProps) {
   const [search, setSearch] = useState("");
 
   const filteredExpenses = expenses.filter(e => 
@@ -80,7 +81,7 @@ export function ExpenseList({ expenses, onDelete }: ExpenseListProps) {
                       <Button 
                         variant="ghost" 
                         size="icon" 
-                        onClick={() => onDelete(expense.id)}
+                        onClick={async () => await deleteExpenseAction(expense.id)}
                         className="text-muted-foreground hover:text-destructive h-8 w-8"
                       >
                         <Trash2 className="h-4 w-4" />

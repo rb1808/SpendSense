@@ -1,64 +1,43 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useUser, useFirestore, useDoc, useMemoFirebase } from "@/firebase";
-import { doc, setDoc, serverTimestamp } from "firebase/firestore";
-import { setDocumentNonBlocking } from "@/firebase/non-blocking-updates";
 import { toast } from "@/hooks/use-toast";
 import { Mail, Bell, Shield, Wallet } from "lucide-react";
+import { updateSettingsAction } from "@/app/actions";
 
-export function Settings() {
-  const { user } = useUser();
-  const db = useFirestore();
+interface SettingsProps {
+  initialSettings: {
+    dailySpendingLimit: number;
+    receiveDailyAlerts: boolean;
+    receiveMonthlyReports: boolean;
+  }
+}
 
-  const userProfileRef = useMemoFirebase(() => {
-    if (!db || !user) return null;
-    return doc(db, "users", user.uid);
-  }, [db, user]);
+export function Settings({ initialSettings }: SettingsProps) {
+  const [dailyLimit, setDailyLimit] = useState<string>(initialSettings.dailySpendingLimit.toString() || "");
+  const [receiveDailyAlerts, setReceiveDailyAlerts] = useState(initialSettings.receiveDailyAlerts);
+  const [receiveMonthlyReports, setReceiveMonthlyReports] = useState(initialSettings.receiveMonthlyReports);
+  const [isSaving, setIsSaving] = useState(false);
 
-  const { data: profile, isLoading } = useDoc(userProfileRef);
-
-  const [dailyLimit, setDailyLimit] = useState<string>("");
-  const [receiveDailyAlerts, setReceiveDailyAlerts] = useState(false);
-  const [receiveMonthlyReports, setReceiveMonthlyReports] = useState(false);
-
-  useEffect(() => {
-    if (profile) {
-      setDailyLimit(profile.dailySpendingLimit?.toString() || "");
-      setReceiveDailyAlerts(profile.receiveDailyAlerts || false);
-      setReceiveMonthlyReports(profile.receiveMonthlyReports || false);
-    }
-  }, [profile]);
-
-  const handleSave = () => {
-    if (!userProfileRef || !user) return;
-
-    const updatedProfile = {
-      id: user.uid,
-      email: user.email,
-      displayName: user.displayName,
-      currency: "INR",
+  const handleSave = async () => {
+    setIsSaving(true);
+    await updateSettingsAction({
       dailySpendingLimit: parseFloat(dailyLimit) || 0,
       receiveDailyAlerts,
-      receiveMonthlyReports,
-      updatedAt: serverTimestamp(),
-      ...(profile ? {} : { createdAt: serverTimestamp() })
-    };
-
-    setDocumentNonBlocking(userProfileRef, updatedProfile, { merge: true });
+      receiveMonthlyReports
+    });
+    setIsSaving(false);
     
     toast({
       title: "Settings Saved",
       description: "Your notification preferences have been updated.",
     });
   };
-
-  if (isLoading) return <div>Loading settings...</div>;
 
   return (
     <Card id="settings" className="shadow-md">
@@ -117,8 +96,8 @@ export function Settings() {
           </div>
         </div>
 
-        <Button onClick={handleSave} className="w-full">
-          Save Preferences
+        <Button onClick={handleSave} className="w-full" disabled={isSaving}>
+          {isSaving ? "Saving..." : "Save Preferences"}
         </Button>
       </CardContent>
     </Card>

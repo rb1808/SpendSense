@@ -3,8 +3,7 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Wallet, Settings, LayoutDashboard, History, LogOut, User } from "lucide-react";
-import { useAuth, useUser } from "@/firebase";
-import { initiateSignOut } from "@/firebase/non-blocking-login";
+import { signOut } from "next-auth/react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -15,12 +14,17 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-export function Navbar() {
-  const { user } = useUser();
-  const auth = useAuth();
+interface NavbarProps {
+  user?: {
+    name?: string | null;
+    email?: string | null;
+    image?: string | null;
+  }
+}
 
+export function Navbar({ user }: NavbarProps) {
   const handleLogout = () => {
-    initiateSignOut(auth);
+    signOut({ callbackUrl: '/login' });
   };
 
   return (
@@ -52,15 +56,15 @@ export function Navbar() {
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="relative h-8 w-8 rounded-full border">
                     <Avatar className="h-8 w-8">
-                      <AvatarImage src={user.photoURL || undefined} alt={user.displayName || "User"} />
-                      <AvatarFallback>{user.displayName?.charAt(0) || <User className="h-4 w-4" />}</AvatarFallback>
+                      <AvatarImage src={user.image || undefined} alt={user.name || "User"} />
+                      <AvatarFallback>{user.name?.charAt(0) || <User className="h-4 w-4" />}</AvatarFallback>
                     </Avatar>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-56" align="end" forceMount>
                   <DropdownMenuLabel className="font-normal">
                     <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium leading-none">{user.displayName}</p>
+                      <p className="text-sm font-medium leading-none">{user.name}</p>
                       <p className="text-xs leading-none text-muted-foreground">{user.email}</p>
                     </div>
                   </DropdownMenuLabel>

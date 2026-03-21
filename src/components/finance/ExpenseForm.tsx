@@ -14,26 +14,29 @@ const CATEGORIES = [
   "Shopping", "Entertainment", "Rent", "Salary", "Miscellaneous"
 ];
 
+import { addExpenseAction } from "@/app/actions";
+
 interface ExpenseFormProps {
-  onAdd: (expense: Omit<Expense, 'id'>) => void;
   historicalExpenses: Expense[];
 }
 
-export function ExpenseForm({ onAdd, historicalExpenses }: ExpenseFormProps) {
+export function ExpenseForm({ historicalExpenses }: ExpenseFormProps) {
   const [description, setDescription] = useState("");
   const [amount, setAmount] = useState("");
   const [category, setCategory] = useState("");
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!description || !amount || !category || !date) return;
-    onAdd({
+    
+    await addExpenseAction({
       description,
       amount: parseFloat(amount),
       category,
       date
     });
+    
     setDescription("");
     setAmount("");
     setCategory("");

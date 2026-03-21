@@ -1,28 +1,11 @@
 'use client';
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAuth, useUser } from '@/firebase';
+import { signIn } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Wallet, LogIn } from 'lucide-react';
-import { initiateGoogleSignIn } from '@/firebase/non-blocking-login';
 
 export default function LoginPage() {
-  const { user, isUserLoading } = useUser();
-  const auth = useAuth();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (user && !isUserLoading) {
-      router.push('/');
-    }
-  }, [user, isUserLoading, router]);
-
-  if (isUserLoading) {
-    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
-  }
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <Card className="w-full max-w-md shadow-lg">
@@ -40,7 +23,7 @@ export default function LoginPage() {
         <CardContent className="space-y-4 pt-6">
           <Button 
             className="w-full h-12 text-lg" 
-            onClick={() => initiateGoogleSignIn(auth)}
+            onClick={() => signIn('google', { callbackUrl: '/' })}
           >
             <LogIn className="mr-2 h-5 w-5" /> Sign in with Google
           </Button>
