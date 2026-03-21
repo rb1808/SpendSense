@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { Navbar } from "@/components/layout/Navbar";
 import { OverviewCards } from "@/components/finance/OverviewCards";
