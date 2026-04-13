@@ -4,6 +4,21 @@ import { signIn } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Wallet, LogIn } from 'lucide-react';
+import { useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
+
+function LoginError() {
+  const searchParams = useSearchParams();
+  const error = searchParams?.get('error');
+  
+  if (!error) return null;
+  
+  return (
+    <div className="bg-destructive/15 text-destructive text-sm p-3 rounded-md mb-4 text-center">
+      Authentication Error: {error}
+    </div>
+  );
+}
 
 export default function LoginPage() {
   return (
@@ -21,6 +36,9 @@ export default function LoginPage() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4 pt-6">
+          <Suspense fallback={null}>
+            <LoginError />
+          </Suspense>
           <Button 
             className="w-full h-12 text-lg" 
             onClick={() => signIn('google', { callbackUrl: '/' })}
