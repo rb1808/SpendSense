@@ -6,8 +6,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Plus } from "lucide-react";
+import { Plus, Loader2 } from "lucide-react";
 import { Expense } from "@/lib/types";
+import { toast } from "@/hooks/use-toast";
 
 const CATEGORIES = [
   "Groceries", "Dining Out", "Utilities", "Transportation", 
@@ -25,21 +26,45 @@ export function ExpenseForm({ historicalExpenses }: ExpenseFormProps) {
   const [amount, setAmount] = useState("");
   const [category, setCategory] = useState("");
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!description || !amount || !category || !date) return;
     
-    await addExpenseAction({
-      description,
-      amount: parseFloat(amount),
-      category,
-      date
-    });
-    
-    setDescription("");
-    setAmount("");
-    setCategory("");
+    setIsSubmitting(true);
+    try {
+      const result = await addExpenseAction({
+        description,
+        amount: parseFloat(amount),
+        category,
+        date
+      });
+      
+      if (result?.success) {
+        toast({
+          title: "Expense Added",
+          description: `₹${parseFloat(amount).toLocaleString('en-IN')} for "${description}" recorded.`,
+        });
+        setDescription("");
+        setAmount("");
+        setCategory("");
+      } else {
+        toast({
+          title: "Error",
+          description: result?.error || "Failed to add expense.",
+          variant: "destructive",
+        });
+      }
+    } catch {
+      toast({
+        title: "Error",
+        description: "Something went wrong. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -58,6 +83,7 @@ export function ExpenseForm({ historicalExpenses }: ExpenseFormProps) {
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               required
+              disabled={isSubmitting}
               className="w-full"
             />
           </div>
@@ -72,6 +98,7 @@ export function ExpenseForm({ historicalExpenses }: ExpenseFormProps) {
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
                 required
+                disabled={isSubmitting}
               />
             </div>
             <div className="space-y-2">
@@ -82,12 +109,13 @@ export function ExpenseForm({ historicalExpenses }: ExpenseFormProps) {
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
                 required
+                disabled={isSubmitting}
               />
             </div>
           </div>
           <div className="space-y-2">
             <Label htmlFor="category">Category</Label>
-            <Select value={category} onValueChange={setCategory} required>
+            <Select value={category} onValueChange={setCategory} required disabled={isSubmitting}>
               <SelectTrigger id="category">
                 <SelectValue placeholder="Select category" />
               </SelectTrigger>
@@ -98,8 +126,12 @@ export function ExpenseForm({ historicalExpenses }: ExpenseFormProps) {
               </SelectContent>
             </Select>
           </div>
-          <Button type="submit" className="w-full mt-2">
-            <Plus className="mr-2 h-4 w-4" /> Add Expense
+          <Button type="submit" className="w-full mt-2" disabled={isSubmitting}>
+            {isSubmitting ? (
+              <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Adding...</>
+            ) : (
+              <><Plus className="mr-2 h-4 w-4" /> Add Expense</>
+            )}
           </Button>
         </form>
       </CardContent>

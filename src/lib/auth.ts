@@ -9,7 +9,7 @@ export const authOptions: NextAuthOptions = {
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID || "",
       clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
-      allowDangerousEmailAccountLinking: true, // Allow linking if User row exists without Account
+      allowDangerousEmailAccountLinking: true,
     }),
   ],
   pages: {
@@ -17,6 +17,27 @@ export const authOptions: NextAuthOptions = {
   },
   session: {
     strategy: "jwt",
+  },
+  callbacks: {
+    async jwt({ token, user, account }) {
+      // On initial sign-in, persist user data into the JWT
+      if (user) {
+        token.id = user.id
+        token.email = user.email
+        token.name = user.name
+        token.picture = user.image
+      }
+      return token
+    },
+    async session({ session, token }) {
+      // Populate session.user from the JWT token
+      if (session.user) {
+        session.user.email = token.email as string
+        session.user.name = token.name as string
+        session.user.image = token.picture as string
+      }
+      return session
+    },
   },
   debug: process.env.NODE_ENV === "development",
 }

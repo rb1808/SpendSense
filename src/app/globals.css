@@ -55,10 +55,17 @@
 }
 
 @layer base {
+  html {
+    scroll-behavior: smooth;
+  }
   * {
     @apply border-border;
   }
   body {
     @apply bg-background text-foreground font-body antialiased;
+  }
+  /* Offset for sticky navbar when scrolling to anchors */
+  [id] {
+    scroll-margin-top: 5rem;
   }
 }
